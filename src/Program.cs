@@ -32,6 +32,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add API Gateway specific services
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddSingleton<IServiceDiscovery, ServiceDiscovery>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 // Add YARP Reverse Proxy
 builder.Services.AddReverseProxy()
@@ -81,8 +82,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Add authorization
 builder.Services.AddAuthorization();
 
-// Add controllers
-builder.Services.AddControllers();
+// Add controllers with JSON configuration to handle cycles
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 
 // Add API documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -163,21 +169,70 @@ app.MapReverseProxy();
 // Map health checks
 app.MapHealthChecks("/health");
 
-// Ensure database is created
+// Ensure database is created with proper schema
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    // Drop and recreate database to ensure schema is correct
+    context.Database.EnsureDeleted();
     context.Database.EnsureCreated();
 
     // Seed default user if not exists
-    if (!context.Users.Any())
+    try
     {
-        context.Users.Add(new User
+        if (!context.Users.Any())
         {
-            Username = "admin",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123")
-        });
-        context.SaveChanges();
+            context.Users.Add(new User
+            {
+                Username = "admin",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123")
+            });
+            context.SaveChanges();
+        }
+
+        // Seed sample data for development
+        if (!context.Products.Any())
+        {
+            var products = new List<Product>
+            {
+                new Product { Name = "Laptop Dell XPS 13", SKU = "DELL-XPS13", Price = 1299.99m, StockQuantity = 15, Category = "Electronics", Description = "High-performance ultrabook" },
+                new Product { Name = "iPhone 14 Pro", SKU = "APPLE-IP14P", Price = 999.99m, StockQuantity = 25, Category = "Electronics", Description = "Latest iPhone model" },
+                new Product { Name = "Office Chair", SKU = "CHAIR-001", Price = 299.99m, StockQuantity = 50, Category = "Furniture", Description = "Ergonomic office chair" },
+                new Product { Name = "Wireless Mouse", SKU = "MOUSE-WL", Price = 29.99m, StockQuantity = 100, Category = "Accessories", Description = "Bluetooth wireless mouse" },
+                new Product { Name = "USB-C Hub", SKU = "HUB-USBC", Price = 79.99m, StockQuantity = 75, Category = "Accessories", Description = "Multi-port USB-C hub" }
+            };
+            context.Products.AddRange(products);
+            context.SaveChanges();
+        }
+
+        if (!context.Customers.Any())
+        {
+            var customers = new List<Customer>
+            {
+                new Customer { FirstName = "John", LastName = "Doe", Email = "john.doe@example.com", PhoneNumber = "555-0123", Address = "123 Main St", City = "New York", State = "NY", PostalCode = "10001", Country = "USA" },
+                new Customer { FirstName = "Jane", LastName = "Smith", Email = "jane.smith@example.com", PhoneNumber = "555-0124", Address = "456 Oak Ave", City = "Los Angeles", State = "CA", PostalCode = "90210", Country = "USA" },
+                new Customer { FirstName = "Bob", LastName = "Johnson", Email = "bob.johnson@example.com", PhoneNumber = "555-0125", Address = "789 Pine St", City = "Chicago", State = "IL", PostalCode = "60601", Country = "USA" }
+            };
+            context.Customers.AddRange(customers);
+            context.SaveChanges();
+        }
+
+        if (!context.Suppliers.Any())
+        {
+            var suppliers = new List<Supplier>
+            {
+                new Supplier { Name = "Tech Solutions Inc.", ContactPerson = "Mike Wilson", Email = "mike@techsolutions.com", PhoneNumber = "555-0200", Address = "100 Tech Park", City = "Austin", State = "TX", PostalCode = "78701", Country = "USA" },
+                new Supplier { Name = "Office Supplies Co.", ContactPerson = "Sarah Davis", Email = "sarah@officesupplies.com", PhoneNumber = "555-0201", Address = "200 Business Dr", City = "Denver", State = "CO", PostalCode = "80202", Country = "USA" }
+            };
+            context.Suppliers.AddRange(suppliers);
+            context.SaveChanges();
+        }
+    }
+    catch (Exception ex)
+    {
+        // Log the error but don't crash the application
+        Console.WriteLine($"Error seeding database: {ex.Message}");
     }
 }
 

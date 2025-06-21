@@ -35,6 +35,15 @@ namespace aspnet_core_api.Middleware
                 return;
             }
 
+            // Check if request has JWT Bearer token - if so, skip API key validation
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+            {
+                // Let JWT authentication handle this request
+                await _next(context);
+                return;
+            }
+
             // Check for API key in header or query parameter
             var apiKey = context.Request.Headers["X-API-Key"].FirstOrDefault()
                          ?? context.Request.Query["apikey"].FirstOrDefault();

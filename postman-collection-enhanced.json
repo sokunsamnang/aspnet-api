@@ -1,0 +1,486 @@
+{
+    "info": {
+        "name": "ASP.NET Core API - Enhanced Features",
+        "description": "Complete API collection for testing data setup, transactions, and reporting features",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{jwt_token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:5000"
+        },
+        {
+            "key": "jwt_token",
+            "value": ""
+        }
+    ],
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.collectionVariables.set('jwt_token', response.token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Auth/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Auth", "login"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Product Management",
+            "item": [
+                {
+                    "name": "Get All Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Product?page=1&pageSize=10",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Product"],
+                            "query": [
+                                { "key": "page", "value": "1" },
+                                { "key": "pageSize", "value": "10" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Product by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Product/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Product", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Product",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"New Product\",\n  \"description\": \"Test product description\",\n  \"sku\": \"TEST-001\",\n  \"price\": 99.99,\n  \"stockQuantity\": 100,\n  \"category\": \"Test Category\",\n  \"isActive\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Product",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Product"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Product",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1,\n  \"name\": \"Updated Product Name\",\n  \"description\": \"Updated description\",\n  \"sku\": \"DELL-XPS13\",\n  \"price\": 1399.99,\n  \"stockQuantity\": 20,\n  \"category\": \"Electronics\",\n  \"isActive\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Product/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Product", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Adjust Stock",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"adjustment\": -5,\n  \"reason\": \"Damage adjustment\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Product/1/adjust-stock",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Product", "1", "adjust-stock"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Product/categories",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Product", "categories"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Customer Management",
+            "item": [
+                {
+                    "name": "Get All Customers",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Customer?page=1&pageSize=10",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Customer"],
+                            "query": [
+                                { "key": "page", "value": "1" },
+                                { "key": "pageSize", "value": "10" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Customer",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"Customer\",\n  \"email\": \"test.customer@example.com\",\n  \"phoneNumber\": \"555-0999\",\n  \"address\": \"123 Test St\",\n  \"city\": \"Test City\",\n  \"state\": \"TS\",\n  \"postalCode\": \"12345\",\n  \"country\": \"USA\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Customer",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Customer"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Customer Summary",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Customer/1/summary",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Customer", "1", "summary"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Sales Management",
+            "item": [
+                {
+                    "name": "Get All Sales",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Sales?page=1&pageSize=10",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Sales"],
+                            "query": [
+                                { "key": "page", "value": "1" },
+                                { "key": "pageSize", "value": "10" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Sale",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"customerId\": 1,\n  \"paymentMethod\": \"Card\",\n  \"taxRate\": 0.08,\n  \"notes\": \"Test sale\",\n  \"items\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 2,\n      \"discount\": 0\n    },\n    {\n      \"productId\": 4,\n      \"quantity\": 1,\n      \"discount\": 5.00\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Sales",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Sales"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Sale Status",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"Completed\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Sales/1/status",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Sales", "1", "status"]
+                        }
+                    }
+                },
+                {
+                    "name": "Sales Dashboard",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Sales/dashboard",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Sales", "dashboard"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Purchase Management",
+            "item": [
+                {
+                    "name": "Get All Purchases",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Purchase?page=1&pageSize=10",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Purchase"],
+                            "query": [
+                                { "key": "page", "value": "1" },
+                                { "key": "pageSize", "value": "10" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Suppliers",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Purchase/suppliers",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Purchase", "suppliers"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Purchase",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"supplierId\": 1,\n  \"taxRate\": 0.08,\n  \"notes\": \"Restock order\",\n  \"items\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 50,\n      \"unitPrice\": 899.99,\n      \"discount\": 0\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Purchase",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Purchase"]
+                        }
+                    }
+                },
+                {
+                    "name": "Receive Purchase",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"notes\": \"All items received in good condition\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Purchase/1/receive",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Purchase", "1", "receive"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Reports",
+            "item": [
+                {
+                    "name": "Sales Dashboard",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Reports/sales-dashboard?days=30",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Reports", "sales-dashboard"],
+                            "query": [{ "key": "days", "value": "30" }]
+                        }
+                    }
+                },
+                {
+                    "name": "Inventory Summary",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Reports/inventory-summary",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Reports", "inventory-summary"]
+                        }
+                    }
+                },
+                {
+                    "name": "Customer Analytics",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/Reports/customer-analytics?days=90",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Reports", "customer-analytics"],
+                            "query": [{ "key": "days", "value": "90" }]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Sales Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reportType\": \"sales\",\n  \"startDate\": \"2024-01-01T00:00:00Z\",\n  \"endDate\": \"2024-12-31T23:59:59Z\",\n  \"format\": \"json\",\n  \"parameters\": {\n    \"period\": \"monthly\"\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Reports/generate",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Reports", "generate"]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Product Sales Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reportType\": \"product-sales\",\n  \"startDate\": \"2024-01-01T00:00:00Z\",\n  \"endDate\": \"2024-12-31T23:59:59Z\",\n  \"format\": \"json\",\n  \"parameters\": {\n    \"category\": \"Electronics\"\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Reports/generate",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Reports", "generate"]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Inventory Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reportType\": \"inventory\",\n  \"startDate\": \"2024-01-01T00:00:00Z\",\n  \"endDate\": \"2024-12-31T23:59:59Z\",\n  \"format\": \"json\",\n  \"parameters\": {\n    \"lowStockThreshold\": 10\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/Reports/generate",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "Reports", "generate"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
