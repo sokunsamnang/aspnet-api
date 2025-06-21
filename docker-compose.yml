@@ -1,0 +1,74 @@
+version: "3.8"
+
+services:
+    api-gateway:
+        image: aspnet-core-api-gateway
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "5000:8080"
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://+:8080
+            - ConnectionStrings__DefaultConnection=Data Source=/app/data/gateway.db
+        volumes:
+            - gateway-data:/app/data
+        depends_on:
+            - service1
+            - service2
+        networks:
+            - microservices-network
+
+    service1:
+        image: mcr.microsoft.com/dotnet/samples:aspnetapp
+        ports:
+            - "5001:8080"
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://+:8080
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+        networks:
+            - microservices-network
+
+    service2:
+        image: mcr.microsoft.com/dotnet/samples:aspnetapp
+        ports:
+            - "5002:8080"
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://+:8080
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+        networks:
+            - microservices-network
+
+    # Placeholder for authentication service
+    auth-service:
+        image: mcr.microsoft.com/dotnet/samples:aspnetapp
+        ports:
+            - "5003:8080"
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://+:8080
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+        networks:
+            - microservices-network
+
+networks:
+    microservices-network:
+        driver: bridge
+
+volumes:
+    gateway-data:

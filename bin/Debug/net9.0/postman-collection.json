@@ -1,0 +1,495 @@
+{
+    "info": {
+        "_postman_id": "api-gateway-collection",
+        "name": "Microservices API Gateway",
+        "description": "Complete API Gateway collection for testing microservices architecture with authentication, service discovery, and health checks.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Health & Status",
+            "item": [
+                {
+                    "name": "System Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["health"]
+                        },
+                        "description": "Check overall system health status"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Gateway Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gateway/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "gateway", "health"]
+                        },
+                        "description": "Check API Gateway specific health and status"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    if (response.token) {",
+                                    "        pm.environment.set(\"jwt_token\", response.token);",
+                                    "        console.log(\"JWT token saved to environment\");",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "login"]
+                        },
+                        "description": "Authenticate user and receive JWT token"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Register User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"newuser\",\n    \"password\": \"newpassword123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/register",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "auth", "register"]
+                        },
+                        "description": "Register a new user account"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Service Discovery",
+            "item": [
+                {
+                    "name": "Get All Services",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gateway/services",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "gateway", "services"]
+                        },
+                        "description": "Get list of all registered services and their instances"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Register Service Instance",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"serviceUrl\": \"http://localhost:8080\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/gateway/services/{{service_name}}/register",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "gateway",
+                                "services",
+                                "{{service_name}}",
+                                "register"
+                            ]
+                        },
+                        "description": "Register a new service instance"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Deregister Service Instance",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"serviceUrl\": \"http://localhost:8080\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/gateway/services/{{service_name}}/deregister",
+                            "host": ["{{base_url}}"],
+                            "path": [
+                                "api",
+                                "gateway",
+                                "services",
+                                "{{service_name}}",
+                                "deregister"
+                            ]
+                        },
+                        "description": "Remove a service instance from registry"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Microservice Routes",
+            "item": [
+                {
+                    "name": "Service 1 - Sample Request",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/service1/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "service1", "health"]
+                        },
+                        "description": "Route request to Service 1 through the gateway"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Service 2 - Sample Request",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/service2/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "service2", "health"]
+                        },
+                        "description": "Route request to Service 2 through the gateway"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Service 1 - GET Data",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/service1/data",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "service1", "data"]
+                        },
+                        "description": "Get data from Service 1"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Service 2 - POST Data",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Sample Data\",\n    \"value\": \"Test Value\",\n    \"timestamp\": \"{{$timestamp}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/service2/data",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "service2", "data"]
+                        },
+                        "description": "Send data to Service 2"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Rate Limiting Tests",
+            "item": [
+                {
+                    "name": "Rate Limit Test - Request 1",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gateway/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "gateway", "health"]
+                        },
+                        "description": "Test rate limiting - make multiple requests quickly"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Rate Limit Test - Request 2",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gateway/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "gateway", "health"]
+                        },
+                        "description": "Test rate limiting - second request"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Error Testing",
+            "item": [
+                {
+                    "name": "Missing API Key",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/gateway/services",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "gateway", "services"]
+                        },
+                        "description": "Test request without API key (should return 401)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Invalid API Key",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-API-Key",
+                                "value": "invalid-key-123",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gateway/health",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "gateway", "health"]
+                        },
+                        "description": "Test request with invalid API key (should return 401)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Missing JWT Token",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{api_key}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gateway/services",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "gateway", "services"]
+                        },
+                        "description": "Test protected endpoint without JWT token (should return 401)"
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [""]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [""]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:5000",
+            "type": "string"
+        },
+        {
+            "key": "api_key",
+            "value": "gateway-api-key-123",
+            "type": "string"
+        },
+        {
+            "key": "jwt_token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "service_name",
+            "value": "myservice",
+            "type": "string"
+        }
+    ]
+}
